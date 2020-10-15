@@ -8,6 +8,7 @@ use client::websocket::BinanceWebsocket;
 use crate::{
     errors::OpenLimitError,
     exchange::Exchange,
+    exchange::ExchangeInstantiation,
     exchange_info::ExchangeInfo,
     exchange_ws::ExchangeWs,
     model::{
@@ -32,23 +33,59 @@ pub struct Binance {
 
 impl Binance {
     pub async fn new(sandbox: bool) -> Self {
-        let state = Binance {
-            exchange_info: ExchangeInfo::new(),
-            transport: Transport::new(sandbox).unwrap(),
-        };
-
-        state.refresh_market_info().await.unwrap();
-        state
+        ExchangeInstantiation::new(BinanceParameters {
+            sandbox,
+            ..Default::default()
+        })
+        .await
     }
 
     pub async fn with_credential(api_key: &str, api_secret: &str, sandbox: bool) -> Self {
-        let state = Binance {
-            exchange_info: ExchangeInfo::new(),
-            transport: Transport::with_credential(api_key, api_secret, sandbox).unwrap(),
+        ExchangeInstantiation::new(BinanceParameters {
+            sandbox,
+            credentials: Some(BinanceCredentials {
+                api_key: api_key.to_string(),
+                api_secret: api_secret.to_string(),
+            }),
+        })
+        .await
+    }
+}
+
+pub struct BinanceCredentials {
+    pub api_key: String,
+    pub api_secret: String,
+}
+
+#[derive(Default)]
+pub struct BinanceParameters {
+    pub sandbox: bool,
+    pub credentials: Option<BinanceCredentials>,
+}
+
+#[async_trait]
+impl ExchangeInstantiation for Binance {
+    type Parameters = BinanceParameters;
+
+    async fn new(parameters: Self::Parameters) -> Self {
+        let binance = match parameters.credentials {
+            Some(credentials) => Binance {
+                exchange_info: ExchangeInfo::new(),
+                transport: Transport::with_credential(
+                    &credentials.api_key,
+                    &credentials.api_secret,
+                    parameters.sandbox,
+                )
+                .unwrap(),
+            },
+            None => Binance {
+                exchange_info: ExchangeInfo::new(),
+                transport: Transport::new(parameters.sandbox).unwrap(),
+            },
         };
 
-        state.refresh_market_info().await.unwrap();
-        state
+        binance.refresh_market_info().await.unwrap();
+        binance
     }
 }
 

@@ -32,14 +32,6 @@ pub struct Binance {
 }
 
 impl Binance {
-    pub async fn new(sandbox: bool) -> Self {
-        ExchangeInstantiation::new(BinanceParameters {
-            sandbox,
-            ..Default::default()
-        })
-        .await
-    }
-
     pub async fn with_credential(api_key: &str, api_secret: &str, sandbox: bool) -> Self {
         ExchangeInstantiation::new(BinanceParameters {
             sandbox,
@@ -61,6 +53,15 @@ pub struct BinanceCredentials {
 pub struct BinanceParameters {
     pub sandbox: bool,
     pub credentials: Option<BinanceCredentials>,
+}
+
+impl BinanceParameters {
+    pub fn sandbox() -> Self {
+        Self {
+            sandbox: true,
+            ..Default::default()
+        }
+    }
 }
 
 #[async_trait]

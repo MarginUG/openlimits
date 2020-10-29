@@ -64,19 +64,28 @@ impl Exchange for Nash {
     type InnerClient = Client;
 
     async fn new(parameters: Self::InitParams) -> Self {
-        let credentials = parameters.credentials.unwrap();
-        Nash {
-            transport: Client::from_key_data(
-                &credentials.secret,
-                &credentials.session,
-                None,
-                parameters.client_id,
-                parameters.environment,
-                parameters.timeout,
-            )
-            .await
-            .unwrap(),
-            exchange_info: ExchangeInfo::new(),
+        match parameters.credentials {
+            Some(credentials) => Nash {
+                exchange_info: ExchangeInfo::new(),
+                transport: Client::from_key_data(
+                    &credentials.secret,
+                    &credentials.session,
+                    None,
+                    parameters.client_id,
+                    parameters.environment,
+                    parameters.timeout,
+                ).await.unwrap(),
+            },
+            None => Nash {
+                exchange_info: ExchangeInfo::new(),
+                transport: Client::new(
+                    None,
+                    parameters.client_id,
+                    None,
+                    parameters.environment,
+                    parameters.timeout,
+                ).await.unwrap(),
+            },
         }
     }
 
@@ -145,7 +154,7 @@ impl ExchangeAccount for Nash {
             Nash::unwrap_response::<nash_protocol::protocol::cancel_order::CancelOrderResponse>(
                 resp,
             )?
-            .into(),
+                .into(),
         )
     }
 
@@ -166,12 +175,12 @@ impl ExchangeAccount for Nash {
                 "{}",
                 resp.state_channel.get(asset).unwrap().amount.value
             ))
-            .unwrap();
+                .unwrap();
             let in_orders = Decimal::from_str(&format!(
                 "{}",
                 resp.in_orders.get(asset).unwrap().amount.value
             ))
-            .unwrap();
+                .unwrap();
             let total = free + in_orders;
             balances.push(Balance {
                 asset: asset.name().to_string(),
@@ -228,7 +237,7 @@ impl ExchangeAccount for Nash {
             Nash::unwrap_response::<nash_protocol::protocol::place_order::LimitOrderResponse>(
                 resp,
             )?
-            .into(),
+                .into(),
         )
     }
 
@@ -241,7 +250,7 @@ impl ExchangeAccount for Nash {
             Nash::unwrap_response::<nash_protocol::protocol::place_order::LimitOrderResponse>(
                 resp,
             )?
-            .into(),
+                .into(),
         )
     }
 
@@ -383,7 +392,7 @@ impl From<nash_protocol::protocol::place_order::LimitOrderResponse> for Order {
 }
 
 impl TryFrom<&TradeHistoryRequest>
-    for nash_protocol::protocol::list_account_trades::ListAccountTradesRequest
+for nash_protocol::protocol::list_account_trades::ListAccountTradesRequest
 {
     type Error = OpenLimitError;
     fn try_from(req: &TradeHistoryRequest) -> crate::shared::Result<Self> {
@@ -497,7 +506,7 @@ fn try_split_paginator(paginator: Option<Paginator>) -> (Option<String>, Option<
 }
 
 impl TryFrom<&GetHistoricTradesRequest>
-    for nash_protocol::protocol::list_trades::ListTradesRequest
+for nash_protocol::protocol::list_trades::ListTradesRequest
 {
     type Error = OpenLimitError;
     fn try_from(req: &GetHistoricTradesRequest) -> crate::shared::Result<Self> {
@@ -554,7 +563,7 @@ impl From<nash_protocol::types::Candle> for Candle {
 }
 
 impl TryFrom<&GetOrderHistoryRequest>
-    for nash_protocol::protocol::list_account_orders::ListAccountOrdersRequest
+for nash_protocol::protocol::list_account_orders::ListAccountOrdersRequest
 {
     type Error = OpenLimitError;
     fn try_from(req: &GetOrderHistoryRequest) -> crate::shared::Result<Self> {
@@ -702,8 +711,8 @@ impl ExchangeWs for NashStream {
                 params.environment,
                 params.timeout,
             )
-            .await
-            .unwrap(),
+                .await
+                .unwrap(),
         }
     }
     async fn subscribe(&mut self, subscription: Subscription) -> Result<()> {
@@ -753,7 +762,7 @@ impl From<Subscription> for nash_protocol::protocol::subscriptions::Subscription
 }
 
 impl From<nash_protocol::protocol::subscriptions::SubscriptionResponse>
-    for OpenLimitsWebsocketMessage
+for OpenLimitsWebsocketMessage
 {
     fn from(message: nash_protocol::protocol::subscriptions::SubscriptionResponse) -> Self {
         match message {

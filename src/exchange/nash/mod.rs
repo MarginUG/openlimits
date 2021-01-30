@@ -136,7 +136,7 @@ impl ExchangeAccount for Nash {
         let req = nash_protocol::protocol::list_account_balances::ListAccountBalancesRequest {
             filter: None,
         };
-        let resp = self.transport.run(req).await;
+        let resp = self.transport.run_http(req).await;
 
         let resp: nash_protocol::protocol::list_account_balances::ListAccountBalancesResponse =
             Nash::unwrap_response::<
@@ -197,7 +197,7 @@ impl ExchangeAccount for Nash {
         let req: nash_protocol::protocol::list_account_orders::ListAccountOrdersRequest =
             req.try_into()?;
 
-        let resp = self.transport.run(req).await;
+        let resp = self.transport.run_http(req).await;
 
         let resp: nash_protocol::protocol::list_account_orders::ListAccountOrdersResponse =
             Nash::unwrap_response::<
@@ -211,7 +211,7 @@ impl ExchangeAccount for Nash {
         let req: nash_protocol::protocol::list_account_trades::ListAccountTradesRequest =
             req.try_into()?;
 
-        let resp = self.transport.run(req).await;
+        let resp = self.transport.run_http(req).await;
 
         let resp: nash_protocol::protocol::list_account_trades::ListAccountTradesResponse =
             Nash::unwrap_response::<
@@ -267,7 +267,7 @@ impl ExchangeAccount for Nash {
 
     async fn get_order(&self, req: &GetOrderRequest) -> Result<Order> {
         let req: nash_protocol::protocol::get_account_order::GetAccountOrderRequest = req.into();
-        let resp = self.transport.run(req).await;
+        let resp = self.transport.run_http(req).await;
         let resp = Nash::unwrap_response::<
             nash_protocol::protocol::get_account_order::GetAccountOrderResponse,
         >(resp)?;

@@ -13,7 +13,7 @@ pub async fn client_from_params_failable(params: NashParameters) -> Result<Clien
                 &credentials.secret,
                 &credentials.session,
                 params.affiliate_code,
-                false,
+                params.turn_off_sign_states,
                 params.client_id,
                 params.environment,
                 params.timeout,
@@ -24,7 +24,7 @@ pub async fn client_from_params_failable(params: NashParameters) -> Result<Clien
             Client::from_keys_path(
                 None,
                 None,
-                false,
+                true,
                 params.client_id,
                 params.environment,
                 params.timeout,
@@ -35,6 +35,9 @@ pub async fn client_from_params_failable(params: NashParameters) -> Result<Clien
 
     if let Some(interval) = params.sign_states_loop_interval {
         client.start_background_sign_states_loop(interval);
+    }
+    if let Some(interval) = params.fill_pool_loop_interval {
+        client.start_background_fill_pool_loop(interval, params.fill_pool_loop_blockchains);
     }
 
     Ok(client)

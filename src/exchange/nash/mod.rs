@@ -819,7 +819,7 @@ impl From<Subscription> for nash_protocol::protocol::subscriptions::Subscription
             ),
             Subscription::AccountBalance(symbol) => Self::AccountBalances(
                 nash_protocol::protocol::subscriptions::updated_account_balances::SubscribeAccountBalances {
-                    symbol
+                    symbol: Some(symbol)
                 }
             ),
             _ => panic!("Not supported Subscription"),

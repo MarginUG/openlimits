@@ -36,6 +36,9 @@ async fn _nash() -> Result<Nash> {
         client_id: 1,
         timeout: Duration::from_secs_f32(10.0),
         sign_states_loop_interval: None,
+        fill_pool_loop_interval: None,
+        turn_off_sign_states: false,
+        fill_pool_loop_blockchains: None
     };
     OpenLimits::instantiate(parameters).await
 }

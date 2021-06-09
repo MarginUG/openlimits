@@ -1,6 +1,7 @@
 use tokio::time::Duration;
 pub use nash_native_client::{Client, Environment};
 use super::NashCredentials;
+use nash_protocol::types::Blockchain;
 
 /// This struct represents the parameters
 #[derive(Clone)]

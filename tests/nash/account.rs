@@ -261,6 +261,9 @@ async fn init() -> Nash {
         client_id: 1,
         timeout: NativeDuration::new(10, 0),
         sign_states_loop_interval: None,
+        fill_pool_loop_interval: None,
+        turn_off_sign_states: false,
+        fill_pool_loop_blockchains: None
     };
 
     OpenLimits::instantiate(parameters)

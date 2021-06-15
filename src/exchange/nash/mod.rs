@@ -814,7 +814,7 @@ impl From<Subscription> for nash_protocol::protocol::subscriptions::Subscription
             ),
             Subscription::AccountTrades(market_name) => Self::AccountTrades(
                 nash_protocol::protocol::subscriptions::new_account_trades::SubscribeAccountTrades {
-                    market_name
+                    market_name: Some(market_name)
                 }
             ),
             Subscription::AccountBalance(symbol) => Self::AccountBalances(
